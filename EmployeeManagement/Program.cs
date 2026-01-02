@@ -1,4 +1,5 @@
 using EmployeeManagement.Data;
+using EmployeeManagement.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.InMemory;
 
@@ -24,11 +25,30 @@ namespace EmployeeManagement
                 });
             });
 
+            // add the employee repository to the DI ( we gonna have a new instance of EmployeeRepo
+            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+
+            builder.Services.AddControllers();
+
+            //about swagger
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
             var app = builder.Build();
 
+            if(app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+                    c.RoutePrefix = string.Empty;
+                });
+            }
+            
             app.UseCors("MyCors");
 
-            app.MapGet("/", () => "Hello World!");
+            app.MapControllers();
 
             app.Run();
         }
